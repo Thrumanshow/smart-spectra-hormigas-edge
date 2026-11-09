@@ -43,3 +43,9 @@ HEADER (8 hex characters)
 Local tests exercise the public package using synthetic payload data. They verify packet encoding, declared payload byte length, validation, and decode round-trip. The test values and payloads are not measurements from a person and do not establish a biometric type code or a production transport contract.
 
 The public specification lists `FUEL` as an activation/pheromone event. This project uses it only in explicitly synthetic SDK tests where stated. It does not claim that `FUEL` is a biometric type or use it to label a live pulse or breathing measurement.
+
+## Experimental fixed 16-byte laboratory format
+
+A separate local laboratory adapter encodes test metrics into a fixed 16-byte frame. Its tests check the experimental header byte, two big-endian float32 values, seven reserved zero bytes, and rejection of invalid inputs such as zero confidence or out-of-range metrics.
+
+This fixed-width format is documented only as an experimental laboratory representation. Its local tests show that this adapter produces and validates the described test frame. They do not establish that the public Python package produces the same frame, that the two representations are equivalent or automatically convertible, or that this experimental format is part of the public PyPI SDK contract. No private production implementation is included or reconstructed here.
