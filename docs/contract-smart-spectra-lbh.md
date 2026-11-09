@@ -49,3 +49,15 @@ The public specification lists `FUEL` as an activation/pheromone event. This pro
 A separate local laboratory adapter encodes test metrics into a fixed 16-byte frame. Its tests check the experimental header byte, two big-endian float32 values, seven reserved zero bytes, and rejection of invalid inputs such as zero confidence or out-of-range metrics.
 
 This fixed-width format is documented only as an experimental laboratory representation. Its local tests show that this adapter produces and validates the described test frame. They do not establish that the public Python package produces the same frame, that the two representations are equivalent or automatically convertible, or that this experimental format is part of the public PyPI SDK contract. No private production implementation is included or reconstructed here.
+
+## Interoperability boundary and current status
+
+The project currently has three independently testable pieces:
+
+1. An Android SmartSpectra prototype that displays pulse from the SDK callback.
+2. A public `lbh-sdk` Python package test using a synthetic, variable-length public packet.
+3. A separate experimental local test for a fixed 16-byte frame.
+
+Passing the Python tests validates those laboratory boundaries separately. It does not prove an Android Presage-to-LBH bridge, conversion between the two LBH representations, network transmission, or compatibility with an unspecified biometric packet type.
+
+A future bridge must define an authorized payload schema and event meaning, use actual SmartSpectra values obtained through verified API accessors, reject missing or invalid metrics, and add tests that distinguish synthetic data from live measurements. Until that work is implemented and tested, this repository describes the integration as a planned boundary rather than a completed feature.
