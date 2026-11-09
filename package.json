@@ -1,0 +1,21 @@
+{
+  "name": "smart-spectra-hormigas-edge",
+  "version": "1.0.0",
+  "description": "Distributed edge sentinel integrating Presage SmartSpectra SDK signals with LBH binary pheromone frames.",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "keywords": [
+    "smart-spectra",
+    "lbh",
+    "edge-ai",
+    "hormigasais",
+    "biometrics"
+  ],
+  "author": "Cristhiam Leonardo Hernández Quiñonez (CLHQ) <clhq@hormigasais.com>",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^16.4.5"
+  }
+}

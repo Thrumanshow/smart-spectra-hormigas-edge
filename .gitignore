@@ -1,0 +1,56 @@
+local.properties
+android/local.properties
+.venv/
+__pycache__/
+*.py[cod]
+android/.gradle/
+android/**/build/
+
+# Builds y paquetes instalables
+*.apk
+*.aab
+android/**/build/
+
+# Credenciales y archivos locales
+presage.properties
+**/presage.properties
+local.properties
+**/local.properties
+*.keystore
+*.jks
+
+# Respaldos temporales y registros
+*.bak
+*.bak.*
+*.log
+
+# Secretos locales de Presage y configuración OAuth
+**/presage_services.xml
+# APKs/paquetes generados y respaldos locales
+# Archivos privados de autenticación Presage
+# Artefactos, respaldos y registros locales
+*.bak*
+**/*.bak*
+# Local secrets and credentials
+*.env
+.env
+.env.*
+*.properties
+secrets.json
+*.pem
+# Android build outputs and local caches
+**/build/
+**/.gradle/
+captures/
+.externalNativeBuild/
+**/.externalNativeBuild/
+.cxx/
+**/.cxx/
+# Backups, logs, and OS files
+*.bak-*
+.DS_Store
+
+# Excluded external reference pending license review
+lab/references/
+!/android/gradle.properties
+!/android/gradle/wrapper/gradle-wrapper.properties
