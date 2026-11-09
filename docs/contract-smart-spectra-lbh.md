@@ -67,3 +67,9 @@ A future bridge must define an authorized payload schema and event meaning, use 
 The app presents a consent dialog describing camera use and physiological signal processing. The user can cancel, and measurement can be stopped from the interface. The project’s consent and data-handling documentation must disclose relevant storage, sharing, retention, deletion, SDK telemetry, and any optional external service use based on the actual implementation and current provider documentation.
 
 This prototype is not a medical device and must not be presented as providing diagnosis, treatment, or medical decision-making. Covert or non-consensual monitoring is outside the project’s scope.
+
+## Reproducibility and release notes
+
+The Python laboratory tests run locally in the project’s virtual environment. The public SDK packet tests and experimental 16-byte tests are separate suites and use synthetic values. Their results should be reported as laboratory serialization tests, not as proof that the Android app emits LBH frames.
+
+The development APK may contain a Presage development API key if the key is injected into Android `BuildConfig`. Such a key is not secret once embedded in an APK. Do not publish or distribute an APK containing an active development key; follow Presage’s recommended key restrictions, rotation, and release guidance before distribution. Keep credential files out of version control.
