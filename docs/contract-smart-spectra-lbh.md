@@ -73,3 +73,11 @@ This prototype is not a medical device and must not be presented as providing di
 The Python laboratory tests run locally in the project’s virtual environment. The public SDK packet tests and experimental 16-byte tests are separate suites and use synthetic values. Their results should be reported as laboratory serialization tests, not as proof that the Android app emits LBH frames.
 
 The development APK may contain a Presage development API key if the key is injected into Android `BuildConfig`. Such a key is not secret once embedded in an APK. Do not publish or distribute an APK containing an active development key; follow Presage’s recommended key restrictions, rotation, and release guidance before distribution. Keep credential files out of version control.
+
+## References
+
+- [Presage SmartSpectra SDK Challenge: prompt, judging criteria, and submission requirements](https://dev.to/challenges/presage-2026-11-04)
+- [Presage SmartSpectra SDK repository and platform documentation links](https://github.com/Presage-Security/SmartSpectra)
+- [LBH SDK on PyPI: public package API and documented packet layout](https://pypi.org/project/lbh-sdk/)
+- [Public LBH v2.0 specification](https://github.com/Thrumanshow/Lenguaje-Binario-HormigasAIS-/blob/main/LBH_SPEC_v2.0.md)
+- [Public LBH Python SDK source repository](https://github.com/Thrumanshow/lbh-sdk)
