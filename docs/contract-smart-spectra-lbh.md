@@ -61,3 +61,9 @@ The project currently has three independently testable pieces:
 Passing the Python tests validates those laboratory boundaries separately. It does not prove an Android Presage-to-LBH bridge, conversion between the two LBH representations, network transmission, or compatibility with an unspecified biometric packet type.
 
 A future bridge must define an authorized payload schema and event meaning, use actual SmartSpectra values obtained through verified API accessors, reject missing or invalid metrics, and add tests that distinguish synthetic data from live measurements. Until that work is implemented and tested, this repository describes the integration as a planned boundary rather than a completed feature.
+
+## Consent, privacy, and non-medical use
+
+The app presents a consent dialog describing camera use and physiological signal processing. The user can cancel, and measurement can be stopped from the interface. The project’s consent and data-handling documentation must disclose relevant storage, sharing, retention, deletion, SDK telemetry, and any optional external service use based on the actual implementation and current provider documentation.
+
+This prototype is not a medical device and must not be presented as providing diagnosis, treatment, or medical decision-making. Covert or non-consensual monitoring is outside the project’s scope.
