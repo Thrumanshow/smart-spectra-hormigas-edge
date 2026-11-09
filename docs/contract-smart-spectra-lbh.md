@@ -22,7 +22,7 @@ The project author has reported and recorded a device test in which the app disp
 
 Although the app requests cardio and breathing metric groups, the specific breathing-rate and confidence accessors have not yet been incorporated into the app callback. They must be verified against the installed SmartSpectra API before the app uses them. No missing metric or confidence value is to be replaced with invented or simulated data.
 
-The app sets `imageOutputEnabled` to `false` and does not deliberately save video or send LBH frames in the current prototype. Presage SDK telemetry or other processing must be described according to Presage’s current documentation and privacy materials; this repository does not make claims about undocumented SDK behavior.
+The app sets `imageOutputEnabled` to `false` and does not deliberately save video or send LBH frames in the current prototype. Presage documents session telemetry as enabled by default and describes one aggregate diagnostic summary per measurement session. Its listed fields include SDK build/package origin, runtime and device characteristics, session source/outcome, performance and validation counts, a coarse error code for failed sessions, and a timestamp. Presage states that telemetry does not include raw video or image frames, measured vital values, free-text errors, user identifiers, or stable device identifiers. This app does not explicitly disable it. See [Presage’s telemetry and privacy documentation](https://github.com/Presage-Security/SmartSpectra/blob/main/docs/telemetry-and-privacy.md). These are provider-documented statements; this project has not independently inspected SDK network traffic.
 
 ## Public Python LBH SDK
 
@@ -64,7 +64,7 @@ A future bridge must define an authorized payload schema and event meaning, use 
 
 ## Consent, privacy, and non-medical use
 
-The app presents a consent dialog describing camera use and physiological signal processing. The user can cancel, and measurement can be stopped from the interface. The project’s consent and data-handling documentation must disclose relevant storage, sharing, retention, deletion, SDK telemetry, and any optional external service use based on the actual implementation and current provider documentation.
+The app presents a consent dialog describing camera-based physiological signal processing and Presage’s documented default session telemetry. The user can cancel before starting and stop measurement from the interface. The app does not deliberately save video or emit LBH frames. The SDK telemetry opt-out is a separate configuration setting; this app does not explicitly disable it. See the project’s [consent and data handling notice](consent-and-data.md) and Presage’s [telemetry and privacy documentation](https://github.com/Presage-Security/SmartSpectra/blob/main/docs/telemetry-and-privacy.md).
 
 This prototype is not a medical device and must not be presented as providing diagnosis, treatment, or medical decision-making. Covert or non-consensual monitoring is outside the project’s scope.
 

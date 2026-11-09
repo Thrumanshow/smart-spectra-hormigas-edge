@@ -165,8 +165,12 @@ class MainActivity : ComponentActivity() {
                     "señales fisiológicas, como el pulso. Esta app de laboratorio " +
                     "no guarda deliberadamente video ni envía tramas LBH. El SDK " +
                     "puede tener su propio tratamiento de datos o telemetría; consulta " +
-                    "la documentación y política de Presage. Puedes cancelar ahora " +
-                    "o detener la medición después. No es una herramienta médica."
+                    "la documentación y política de Presage. Presage informa que la " +
+                    "telemetría está activada por defecto y envía un resumen agregado " +
+                    "de diagnóstico por sesión. Según Presage, no incluye video sin " +
+                    "procesar, valores medidos ni identificadores estables. Esta app " +
+                    "no desactiva la telemetría. Puedes cancelar antes de iniciar o " +
+                    "detener la medición después. No es una herramienta médica."
             )
             .setPositiveButton("Aceptar y continuar") { _, _ ->
                 if (ContextCompat.checkSelfPermission(
