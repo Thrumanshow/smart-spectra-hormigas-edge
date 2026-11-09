@@ -26,8 +26,6 @@ The app sets `imageOutputEnabled` to `false` and does not deliberately save vide
 
 ## Public Python LBH SDK
 
----
-
 The project has inspected and tested the public PyPI package `lbh-sdk` version 0.3.1. Its visible Python API includes `encode_packet(header, type_code, payload)`, `decode_packet(frame)`, and `validate_packet(frame)`.
 
 The public packet representation documented for the package is a hexadecimal string with this layout:
@@ -37,12 +35,4 @@ HEADER (8 hex characters)
 | TYPE_CODE (8 hex characters)
 | LENGTH (8 hex characters)
 | PAYLOAD (UTF-8 bytes represented as hexadecimal)
-
----
-
-### 
-`LENGTH` represents the number of bytes in the original UTF-8 payload, before hexadecimal conversion. When decoded from hexadecimal into bytes, the three fixed fields occupy 12 bytes, followed by the variable-length payload. The package therefore does not directly return the experimental fixed 16-byte frame described below.
-
-Local tests exercise the public package using synthetic payload data. They verify packet encoding, declared payload byte length, validation, and decode round-trip. The test values and payloads are not measurements from a person and do not establish a biometric type code or a production transport contract.
-
-The public specification lists `FUEL` as an activation/pheromone event. This project uses it only in explicitly synthetic SDK tests where stated. It does not claim that `FUEL` is a biometric type or use it to label a live pulse or breathing measurement.
+```
