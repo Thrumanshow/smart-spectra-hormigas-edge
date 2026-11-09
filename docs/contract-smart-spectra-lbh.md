@@ -36,6 +36,7 @@ HEADER (8 hex characters)
 | LENGTH (8 hex characters)
 | PAYLOAD (UTF-8 bytes represented as hexadecimal)
 ```
+---
 
 `LENGTH` represents the number of bytes in the original UTF-8 payload, before hexadecimal conversion. When decoded from hexadecimal into bytes, the three fixed fields occupy 12 bytes, followed by the variable-length payload. The package therefore does not directly return the experimental fixed 16-byte frame described below.
 
