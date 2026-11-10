@@ -90,6 +90,14 @@ Presage documents session telemetry as enabled by default. It describes one aggr
 
 The recording shows the consent screen, front-camera measurement flow, and a changing pulse value reported by SmartSpectra. It demonstrates pulse only; it does not show breathing-rate extraction, confidence handling, clinical validation, or an Android-to-LBH packet bridge. This repository does not host or distribute an APK.
 
+<!-- DEVTO_POST_LINK_START -->
+
+## DEV.to submission
+
+This project has been published as a submission to the [Presage SmartSpectra SDK Challenge on DEV.to](https://dev.to/thrumanshow/smartspectra-edge-sentinel-a-consent-first-android-pulse-demo-1a43).
+
+<!-- DEVTO_POST_LINK_END -->
+
 ## Related public references
 
 - Presage [SmartSpectra Android documentation](https://smartspectra.presagetech.com/docs/android/) and [official repository](https://github.com/Presage-Security/SmartSpectra).
