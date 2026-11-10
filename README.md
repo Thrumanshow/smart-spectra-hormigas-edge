@@ -1,73 +1,3 @@
-# SmartSpectra Edge Sentinel
-
-Prototipo para explorar el flujo entre señales humanas capturadas con
-Presage SmartSpectra y el protocolo público Lenguaje Binario HormigasAIS
-(LBH).
-
-## Estado actual
-
-El laboratorio contiene un simulador y pruebas del adaptador. Las pruebas
-actuales usan valores de ejemplo y verifican un formato experimental de
-16 bytes. **No representan señales Presage en vivo ni prueban compatibilidad
-con LBH v2.0.**
-
-La aplicación Android todavía debe integrar SmartSpectra, solicitar
-consentimiento antes de activar la cámara y demostrar al menos una señal
-Presage real en vivo. El código de cámara y esa integración aún no están
-implementados aquí.
-
-## Componentes públicos relacionados
-
-- Web y referencias legales de HormigasAIS: https://hormigasais.com/
-- SDK Python LBH: https://pypi.org/project/lbh-sdk/
-- Repositorio del SDK Python: https://github.com/Thrumanshow/lbh-sdk
-- SDK JavaScript LBH: https://www.npmjs.com/package/lbh-sdk-hormigasais
-- Repositorio del SDK JavaScript: https://github.com/Thrumanshow/lbh-sdk-js
-- Registro Zenodo relacionado: https://doi.org/10.5281/zenodo.19177759
-- Documentación SmartSpectra: https://smartspectra.presagetech.com/docs/
-- Repositorio SmartSpectra: https://github.com/Presage-Security/SmartSpectra
-- Convocatoria Presage SmartSpectra SDK Challenge:
-  https://dev.to/devteam/join-the-presage-smartspectra-sdk-challenge-3000-in-prizes-across-10-winners-1370
-
-## Plan de integración
-
-1. Revisar la especificación LBH v2.0 y la API publicada del SDK Python.
-2. Integrar SmartSpectra en una aplicación Android compatible siguiendo la
-   documentación vigente de Presage.
-3. Validar la señal recibida y convertirla a un payload documentado.
-4. Codificar y validar ese payload mediante el SDK LBH público.
-5. Probar con consentimiento explícito y documentar el manejo real de datos.
-
-El formato de 16 bytes del laboratorio se conserva solo como experimento
-hasta que se sustituya o se demuestre su correspondencia con la especificación
-pública LBH.
-
-## Privacidad y seguridad
-
-No incluir API keys, tokens, contraseñas ni claves privadas en el repositorio.
-No guardar ni transmitir video o métricas biométricas por defecto. Documentar
-el consentimiento, almacenamiento, transmisión, retención, eliminación y
-telemetría del SDK según el comportamiento final verificado.
-
-## Licencias
-
-Consultar las licencias de cada SDK y componente antes de reutilizar o
-modificar código. La ficha pública de PyPI y la del paquete npm indican
-MPL-2.0 para esos paquetes; conservar los avisos aplicables y revisar las
-licencias incluidas en las distribuciones antes de publicar una integración.
-
-## Ensayos locales
-
-Pruebas del simulador existente:
-
-```bash
-python3 -m unittest discover -s lab/tests -v
-python3 -m unittest discover -s lab/simulator/tests -v
-```
-
-Los tests del simulador no sustituyen la integración real ni la demo requerida
-por el concurso.
-
 <!-- SMART-SPECTRA-CHALLENGE-README -->
 # SmartSpectra Edge Sentinel
 
@@ -84,11 +14,22 @@ See the [interoperability contract](docs/contract-smart-spectra-lbh.md) for the 
 
 ## Development setup
 
-### Requirements
+### Requirements and verified build
 
-Use a JDK and Android SDK compatible with the Android Gradle Plugin declared in this project. The Android module targets API 36 and uses SmartSpectra 3.4.0. The Gradle distribution must be compatible with the declared plugin. In the Termux environment, system Gradle 9.8.2 failed during Android plugin configuration before app compilation; a prior successful build used the Termux Studio Gradle 8.13 distribution. Do not change Gradle or plugin versions blindly. The exact build command should be followed from the local Termux Studio setup and revalidated after toolchain changes.
+The verified Termux build uses JDK 21, Android SDK API 36.1, Gradle 8.13, Android Gradle Plugin 8.13.2, Kotlin Gradle Plugin 2.3.10, and SmartSpectra 3.4.0. AGP 8.13 supports API 36.1, and the Kotlin plugin version is within the published compatibility range for this AGP/Gradle combination. Other environments need JDK 17 or newer and the Android SDK platform/build tools required by the project.
 
-Python 3 is required for the laboratory tests. Public SDK packet tests use `lbh-sdk` 0.3.1.
+Set `ANDROID_HOME` to the installed Android SDK (in the Termux setup used here, `$HOME/android-sdk`) and use the checked Gradle Wrapper rather than a system Gradle version:
+
+```bash
+export ANDROID_HOME="${ANDROID_HOME:-$HOME/android-sdk}"
+export ANDROID_SDK_ROOT="$ANDROID_HOME"
+cd android
+./gradlew --no-daemon :app:assembleDebug :app:lintDebug
+```
+
+The debug APK is written to `android/app/build/outputs/apk/debug/app-debug.apk`. A configured development key is embedded in the APK and is extractable; do not publish or distribute that APK with an active key.
+
+Python 3 is required for laboratory tests. Public SDK packet tests use `lbh-sdk` 0.3.1.
 
 ### Configure the Presage development key locally
 
@@ -137,6 +78,20 @@ Presage documents session telemetry as enabled by default. It describes one aggr
 
 ## Demo
 
-The demo should show this app's own consent flow, camera-based measurement, and live SmartSpectra pulse value. The provider's Quickstart GIF is illustrative reference material, not a required app design or a substitute for the project's own demo video.
+- **Live app demonstration:** [Watch the demonstration video](https://youtube.com/shorts/s257P0V4-iQ?si=WVPEBpQh4bsWr1Ku).
+
+The recording shows the consent screen, front-camera measurement flow, and a changing pulse value reported by SmartSpectra. It demonstrates pulse only; it does not show breathing-rate extraction, confidence handling, clinical validation, or an Android-to-LBH packet bridge. This repository does not host or distribute an APK.
+
+## Related public references
+
+- Presage [SmartSpectra Android documentation](https://smartspectra.presagetech.com/docs/android/) and [official repository](https://github.com/Presage-Security/SmartSpectra).
+- Public HormigasAIS [Python package on PyPI](https://pypi.org/project/lbh-sdk/), [Python SDK source](https://github.com/Thrumanshow/lbh-sdk), and [JavaScript package on npm](https://www.npmjs.com/package/lbh-sdk-hormigasais).
+- Public LBH specification repository: [Lenguaje-Binario-HormigasAIS](https://github.com/Thrumanshow/Lenguaje-Binario-HormigasAIS-).
+- Related Zenodo record: [10.5281/zenodo.19177759](https://doi.org/10.5281/zenodo.19177759).
+- [Presage SmartSpectra SDK Challenge](https://dev.to/challenges/presage-2026-11-04).
+
+The Android app depends on Presage's proprietary SmartSpectra artifact under Presage's terms. The public LBH SDKs are separate dependencies; consult each package's published license before reuse. No provider SDK binary or demo assets are copied into this repository.
+
+<!-- RELATED-PUBLIC-REFERENCES -->
 
 <!-- END SMART-SPECTRA-CHALLENGE-README -->

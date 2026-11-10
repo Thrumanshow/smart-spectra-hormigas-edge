@@ -1,15 +1,7 @@
-# App Android
+# Android application
 
-Carpeta reservada para la aplicación Android que integrará SmartSpectra.
+This repository contains the Android challenge prototype in `app/`. It integrates Presage SmartSpectra 3.4.0, requests camera consent and Android camera permission, and displays the latest pulse value exposed by the SDK callback.
 
-Este directorio todavía no es un proyecto Android compilable. La integración
-debe seguir el quickstart Android vigente de Presage, verificar la versión del
-SDK y solicitar consentimiento antes de activar la cámara.
+The current callback does not yet extract breathing rate or confidence, and the Android app does not create or transmit LBH frames. The Python laboratory tests exercise synthetic payloads and a separate experimental 16-byte representation; they are not an Android-to-LBH bridge.
 
-No subir credenciales al repositorio. Usar el mecanismo de configuración local
-recomendado por Presage y mantener los archivos secretos fuera del control de
-versiones.
-
-La app de concurso deberá demostrar una señal Presage en vivo. El simulador
-Python de `lab/simulator/` solo sirve para ensayar el formato binario y no
-satisface por sí mismo ese requisito.
+Build and local development-key instructions are documented in the root [README](../README.md). A key injected into `BuildConfig` can be extracted from a built APK. Do not commit a credential or distribute an APK/AAB containing an active development key. The Presage SDK remains subject to Presage's own terms; this repository does not include its binary or provider demo assets.

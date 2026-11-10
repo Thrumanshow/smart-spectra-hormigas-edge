@@ -215,11 +215,14 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    override fun onStop() {
-        super.onStop()
+    override fun onPause() {
+        super.onPause()
         lifecycleScope.launch {
-            if (sdk.processingStatus.value == ProcessingStatus.RUNNING) {
-                runCatching { sdk.stop() }
+            when (sdk.processingStatus.value) {
+                ProcessingStatus.RUNNING,
+                ProcessingStatus.STARTING,
+                ProcessingStatus.STOPPING -> runCatching { sdk.stop() }
+                else -> Unit
             }
         }
     }
