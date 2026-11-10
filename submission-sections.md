@@ -1,11 +1,11 @@
 ### What I Built
 
-**SmartSpectra Edge Sentinel** is an early prototype exploring how live biometric signals can become lightweight, structured events for edge applications. It maps pulse and breathing-rate values into a compact 16-byte binary frame using a simple header and numeric fields, illustrating a possible bridge between Presage SmartSpectra signals and the HormigasAIS Binary Language (LBH).
+**SmartSpectra Edge Sentinel** is an Android prototype built and tested on a Samsung Galaxy A16 from Termux. It integrates Presage SmartSpectra 3.4.0, presents an in-app camera-consent step, checks Android camera permission, and displays the latest pulse value available from `cardio.pulseRateList`. The linked demonstration video shows the app flow and changing pulse readings. This is an experimental prototype, not a medical device.
 
-The current code is a proof of concept: it generates simulated pulse and breathing values and prints the resulting frame locally. It does not yet connect to the SmartSpectra SDK or transmit data to another device or service.
+The Python laboratory is separate from the Android measurement flow. Its tests use synthetic/example inputs to exercise the public `lbh-sdk` packet format and a distinct experimental fixed 16-byte representation. They do not show that the Android app converts a live SmartSpectra value into an LBH packet.
 
 ### How It Responds to Human Signals
 
-The prototype is designed around two human signals: pulse and breathing rate. In its current demonstration, it generates sample values for both every five seconds, encodes them into an LBH frame, and prints the frame in hexadecimal. This shows the intended data flow—from signal values to a compact representation that an edge application could consume.
+The Android app currently displays pulse in beats per minute from the latest available SmartSpectra `cardio.pulseRateList` value. The demonstration shows a waiting period before a value appears and then changing pulse readings during the session. The current callback does not extract breathing rate or confidence, even though the app requests cardio and breathing metric groups.
 
-The current implementation uses simulated data, not live Presage measurements. A future SDK integration would need to obtain consent before camera-based sensing, receive the SDK’s live signals, validate them, and map them into the frame. At this stage, the prototype does not make decisions or provide medical interpretation; it only demonstrates a possible encoding approach.
+No simulated values are substituted into the Android app's live display. Synthetic values appear only in the separate Python laboratory tests. The Android app does not currently create or transmit LBH frames, and the experimental 16-byte tests are not claimed to be identical to the public variable-length LBH packet format. The prototype does not provide medical interpretation or make treatment decisions.
