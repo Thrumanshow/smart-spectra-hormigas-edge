@@ -1,5 +1,13 @@
 <!-- SMART-SPECTRA-CHALLENGE-README -->
 # SmartSpectra Edge Sentinel
+<!-- DEMO_VIDEO_HERO_START -->
+
+[![Watch the SmartSpectra Edge Sentinel live pulse demo](https://img.youtube.com/vi/s257P0V4-iQ/hqdefault.jpg)](https://youtube.com/shorts/s257P0V4-iQ)
+
+<p align="center"><strong>Watch the unlisted live app demonstration</strong> · Opens on YouTube</p>
+
+<!-- DEMO_VIDEO_HERO_END -->
+
 
 A Presage SmartSpectra SDK Challenge prototype built and tested on a Samsung Galaxy A16 from Termux. The Android app uses the front camera, presents an in-app consent dialog, and displays the live pulse metric reported by SmartSpectra. This is an experimental prototype, not a medical device.
 
