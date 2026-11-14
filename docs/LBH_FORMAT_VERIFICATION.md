@@ -1,101 +1,90 @@
-# Verificación del formato de trama LBH
+# LBH Frame Format Verification
 
-**Fecha de verificación:** 2026-11-14
-**Componente verificado:** `LbhEncoder` (codificador LBH local)
-**Modalidad:** verificación offline, sin transmisión por red, sin ADB, sin Logcat.
+**Verification date:** 2026-11-14
+**Component verified:** `LbhEncoder` (local LBH encoder)
+**Mode:** offline verification — no network transmission, no ADB, no Logcat.
+**Status:** experimental. The frame is **not** a clinical measurement and must not be used for diagnosis, treatment or any medical decision.
 
----
+## 1. Summary
 
-## 1. Resumen
+This document describes the binary layout of the LBH frame and provides a canonical test vector that any reviewer can verify independently, without access to a device or to the private integration source code.
 
-La aplicación **no transmite tramas LBH** por red. El codificador LBH existe
-únicamente como puente local entre la salida del SDK de radar y la capa de
-consenso de la app. Este documento describe el formato binario de la trama y
-provee un vector canónico verificable independientemente, de modo que cualquier
-revisor pueda confirmar que el codificador produce los bytes correctos sin
-necesidad de acceso al dispositivo ni al código fuente privado.
+Scope of the claims made here:
 
-## 2. Formato de la trama LBH
+- In the private integration build, the app evaluates samples with an experimental session-consensus layer (states `COLLECTING`, `RESET`, `SESSION_STABLE_EXPERIMENTAL`) and hands the results to `PresageLbhBridge`, which returns `Accepted` or `Rejected`. Frames are built in-process by the bridge and the encoder.
+- A keyword search of the bridge source (2026-11-14) found no network, file-output or logging calls. This is a code search, not a formal audit.
+- This document makes no claim about the network behaviour of the SmartSpectra SDK. That is covered separately in the privacy and consent text of the project.
 
-Una trama LBH ocupa **16 bytes** (32 caracteres hexadecimales) en big-endian.
+## 2. LBH frame format
 
-| Offset | Bytes | Campo        | Tipo            | Unidad         |
-|-------:|------:|--------------|-----------------|----------------|
-| 0      | 1     | header       | `uint8`         | —              |
-| 1      | 4     | pulse        | `float32` (BE)  | latidos/min    |
-| 5      | 4     | breathing    | `float32` (BE)  | respiraciones/min |
-| 9      | 7     | reserved     | `uint8[7]`      | — (zeros)      |
+An LBH frame is 16 bytes (32 hexadecimal characters), big-endian.
 
-- El byte de cabecera es **`0xAE`** en todas las tramas válidas.
-- `pulse` y `breathing` son floats IEEE 754 de 32 bits en big-endian.
-- Los 7 bytes reservados se emiten siempre a cero.
+| Offset | Bytes | Field     | Type          | Unit           |
+|-------:|------:|-----------|---------------|----------------|
+| 0      | 1     | header    | uint8         | —              |
+| 1      | 4     | pulse     | float32 (BE)  | beats/min      |
+| 5      | 4     | breathing | float32 (BE)  | breaths/min    |
+| 9      | 7     | reserved  | uint8[7]      | — (zeros)      |
 
-## 3. Vector canónico
+- The header byte is `0xAE` in every valid frame.
+- `pulse` and `breathing` are IEEE 754 32-bit floats, big-endian.
+- The 7 reserved bytes are always emitted as zero.
 
-Para los valores de referencia
+## 3. Canonical vector
+
+For the reference values
 
 ```
-pulse    = 72.5  BPM
-breathing = 16.0 brpm
+pulse     = 72.5  BPM
+breathing = 16.0  brpm
 ```
 
-el codificador produce exactamente:
+the encoder produces exactly:
 
 ```
 ae429100004180000000000000000000
 ```
 
-Desglose byte a byte:
+Byte-by-byte breakdown:
 
 ```
-ae                  header  (0xAE)
-42 91 00 00         pulse   = 72.5    (float32 BE)
-41 80 00 00         breath  = 16.0    (float32 BE)
-00 00 00 00 00 00 00   reserved (7 bytes a cero)
+ae                     header   (0xAE)
+42 91 00 00            pulse    = 72.5   (float32 BE)
+41 80 00 00            breathing = 16.0  (float32 BE)
+00 00 00 00 00 00 00   reserved (7 zero bytes)
 ```
 
-## 4. Reproducción independiente
+## 4. Independent reproduction
 
-El siguiente script de Python no depende de ningún componente del proyecto.
-Cualquier revisor puede ejecutarlo para confirmar la decodificación del vector
-canónico:
+The following Python scripts do not depend on any project component. Any reviewer can run them to confirm the canonical vector. Each one ends with an `OK:` line when it succeeds.
+
+Decoding (bytes → values):
 
 ```python
 import struct
 
 CANONICAL = "ae429100004180000000000000000000"
 
-assert len(CANONICAL) == 32, "Se esperaban 32 caracteres hex"
+assert len(CANONICAL) == 32, "expected 32 hex characters"
 b = bytes.fromhex(CANONICAL)
-assert len(b) == 16, "Se esperaban 16 bytes"
-assert b[0] == 0xAE, f"Cabecera 0x{b[0]:02x} != 0xAE"
+assert len(b) == 16, "expected 16 bytes"
+assert b[0] == 0xAE, f"header 0x{b[0]:02x} != 0xAE"
 
 pulse, breathing = struct.unpack(">ff", b[1:9])
 
 print(f"vector    : {CANONICAL}")
 print(f"header    : 0x{b[0]:02X}")
-print(f"pulse     : {pulse}     (esperado 72.5)")
-print(f"breathing : {breathing}  (esperado 16.0)")
+print(f"pulse     : {pulse}  (expected 72.5)")
+print(f"breathing : {breathing}  (expected 16.0)")
 print(f"reserved  : {b[9:].hex()} (7 bytes)")
 
 assert pulse == 72.5
 assert breathing == 16.0
-print("OK: el vector canónico decodifica a pulse=72.5, breathing=16.0")
+assert b[9:] == bytes(7)
+print("OK: the canonical vector decodes to pulse=72.5, breathing=16.0")
 ```
 
-Salida esperada:
-
-```
-vector    : ae429100004180000000000000000000
-header    : 0xAE
-pulse     : 72.5     (esperado 72.5)
-breathing : 16.0     (esperado 16.0)
-reserved  : 00000000000000 (7 bytes)
-OK: el vector canónico decodifica a pulse=72.5, breathing=16.0
-```
-
-Para codificar en sentido inverso (valores → bytes) y comprobar que se obtiene
-el mismo vector:
+Encoding (values → bytes):
 
 ```python
 import struct
@@ -104,60 +93,46 @@ pulse = 72.5
 breathing = 16.0
 
 frame = bytes([0xAE]) + struct.pack(">ff", pulse, breathing) + bytes(7)
+assert len(frame) == 16
 assert frame.hex() == "ae429100004180000000000000000000"
-print("OK: la codificación produce el vector canónico")
+print("OK: encoding produces the canonical vector")
 ```
 
-## 5. Comportamiento defensivo del codificador
+## 5. Defensive behaviour of the encoder
 
-El codificador valida las entradas antes de emitir una trama. Una métrica se
-rechaza (la función `encodeOrReject` retorna `null` sin emitir trama) cuando
-cualquiera de los siguientes casos se cumple:
+The encoder validates its inputs before emitting a frame. Invalid input is never encoded. `encode` throws an exception for it; `encodeOrReject` wraps `encode` and returns `null` instead. An input is rejected when any of the following holds:
 
-- Cualquier campo float es `NaN` o `±Infinity`.
-- `pulse` está fuera del rango fisiológico admisible (por ejemplo `300 BPM`).
-- `breathing` está fuera del rango admisible (por ejemplo `50 brpm`).
-- `pulseConfidence` o `breathingConfidence` es `0`.
+- Any float field is `NaN` or `±Infinity`.
+- `pulse` is outside the configured experimental range (for example 300 BPM).
+- `breathing` is outside the configured experimental range (for example 50 brpm).
+- `pulseConfidence` or `breathingConfidence` is not finite, or is not greater than 0.
 
-Esto significa que el codificador es la **última línea de defensa** antes de
-emitir una trama: incluso si la capa de consenso deja pasar un sample
-inválido, el codificador lo rechaza y no se produce trama. La separación de
-responsabilidades es:
+The ranges are experimental, configurable engineering limits (currently pulse 40–110 and breathing 5–40). They are not clinical or physiological reference values.
 
-- **Capa de consenso** — lógica temporal: ventana mínima de emisión, gestión
-  de huecos, marcador `stable`, agregación de muestras.
-- **Codificador LBH** — validación de valores + serialización binaria.
+The encoder is a last line of defence: even if an upstream layer lets an invalid sample through, no frame is produced for it. Intended separation of responsibilities:
 
-## 6. Cómo verificar en una instalación
+- **Consensus layer (`SmartSpectraConsensusEvaluator`, experimental):** temporal logic over incoming samples. It evaluates samples first.
+- **Bridge and encoder (`PresageLbhBridge`, `LbhEncoder`):** value validation and binary serialisation of what the bridge receives.
 
-La trama se genera únicamente dentro del proceso de la app; no se transmite
-por red. Para confirmar que el codificador instalado produce el vector
-canónico, en un entorno con acceso al código fuente del codificador puede
-ejecutarse un test unitario que invoque:
+## 6. How to verify on an installation
 
-```
+A frame is generated only inside the app process. To confirm that the encoder produces the canonical vector, in an environment with access to the encoder source, run a unit test that calls:
+
+```kotlin
 LbhEncoder.encode(LbhEncoder.Metrics(
-    pulseBpm           = 72.5f,
-    breathingRateBpm   = 16.0f,
-    pulseConfidence    = 0.9f,
+    pulseBpm            = 72.5f,
+    breathingRateBpm    = 16.0f,
+    pulseConfidence     = 0.9f,
     breathingConfidence = 0.9f,
 ))
 ```
 
-y verifique que el `ByteArray` retornado tiene exactamente 16 bytes y su
-hexadecimal es `ae429100004180000000000000000000`.
+and checks that the returned `ByteArray` has exactly 16 bytes and that its hexadecimal form is `ae429100004180000000000000000000`.
 
-Los campos de confianza (`pulseConfidence`, `breathingConfidence`) **no** se
-serializan en la trama binaria de 16 bytes; sólo `pulse` y `breathing` se
-incluyen. Su propósito es la validación previa a la codificación, no la
-transmisión.
+The confidence fields (`pulseConfidence`, `breathingConfidence`) are not serialised into the 16-byte frame; only `pulse` and `breathing` are. Their purpose is validation before encoding.
 
-## 7. Limitaciones
+## 7. Limitations
 
-- La trama LBH descrita aquí **no incluye** mecanismos de integridad
-  (checksum, HMAC, nonce). La integridad y confidencialidad, si se requieren
-  para un transporte concreto, son responsabilidad del canal de transporte,
-  no del codificador.
-- El campo reserved de 7 bytes está fijado a cero en la versión actual. Su
-  significado podría cambiar en versiones futuras del formato sin afectar la
-  decodificación de `pulse` y `breathing`.
+- The frame has no integrity mechanism (checksum, HMAC, nonce). Integrity and confidentiality, where required for a given transport, are the responsibility of that transport, not of the encoder.
+- The 7-byte `reserved` field is fixed to zero in the current version. Its meaning may change in future format versions without affecting the decoding of `pulse` and `breathing`.
+- The values are experimental signal estimates, not clinical measurements.
