@@ -54,3 +54,6 @@ captures/
 lab/references/
 !/android/gradle.properties
 !/android/gradle/wrapper/gradle-wrapper.properties
+
+# Experimento inerte del perímetro público (script 44, 2026-11-14)
+android/bridge-lab-experiment/
