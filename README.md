@@ -13,12 +13,13 @@ A Presage SmartSpectra SDK Challenge prototype built and tested on a Samsung Gal
 
 ## Current implementation and boundaries
 
-- The Android app uses SmartSpectra 3.4.0 and displays the latest available value from `cardio.pulseRateList`.
-- The app requests cardio and breathing metric groups, but the current callback displays pulse; breathing-rate extraction and confidence handling are not yet implemented in that callback.
-- The camera flow includes an in-app consent step and an Android camera-permission check. The app sets `imageOutputEnabled = false`; the current implementation does not deliberately save video or emit LBH frames.
-- The repository tests the public `lbh-sdk` packet format and an experimental fixed 16-byte format separately. The Android app does not currently convert a live Presage metric into an LBH frame.
+- The Android app uses SmartSpectra 3.4.0 and evaluates session stability via `SmartSpectraConsensusEvaluator` over a 20-second window.
+- When stability criteria are met (`stable=true`, positive confidence, increasing timestamps), data is channeled through `PresageLbhBridge` and `LbhEncoder` to construct a validated 16-byte fixed LBH frame strictly in volatile memory.
+- The camera flow includes an in-app consent step and an Android camera-permission check. The app sets `imageOutputEnabled = false`; the current source code does not deliberately save video to disk or transmit LBH frames over a network.
+- The repository tests the public `lbh-sdk` packet format in Python and an experimental 16-byte format, alongside Android unit tests (27 tests passing).
 
 See the [interoperability contract](docs/contract-smart-spectra-lbh.md) for the tested boundaries and [consent and data handling](docs/consent-and-data.md) for the app's data disclosures.
+(docs/contract-smart-spectra-lbh.md) for the tested boundaries and [consent and data handling](docs/consent-and-data.md) for the app's data disclosures.
 
 ## Development setup
 
@@ -33,6 +34,18 @@ export ANDROID_HOME="${ANDROID_HOME:-$HOME/android-sdk}"
 export ANDROID_SDK_ROOT="$ANDROID_HOME"
 cd android
 ./gradlew --no-daemon :app:assembleDebug :app:lintDebug
+
+Reproducing and running unit tests without an API key
+Reviewers can verify the consensus logic, bridge validation, and 16-byte binary encoding without a Presage API key:
+
+Copy the local configuration template:
+
+cp android/local.properties.example android/local.properties
+
+Run the Android unit test suite (27 tests covering consensus, bridge, and LBH encoder):
+
+cd android
+./gradlew --no-daemon :app:testDebugUnitTest
 ```
 
 The debug APK is written to `android/app/build/outputs/apk/debug/app-debug.apk`. A configured development key is embedded in the APK and is extractable; do not publish or distribute that APK with an active key.
@@ -83,6 +96,16 @@ The test payloads are synthetic. Passing these suites validates the Python seria
 This project depends on the Presage SmartSpectra Android artifact `com.presagetech:smartspectra:3.4.0`. Presage describes SmartSpectra as proprietary and subject to its [Terms of Service](https://physiology.presagetech.com/tos). This repository does not include the SDK binary, provider demo media, or provider sample files.
 
 Presage documents session telemetry as enabled by default. It describes one aggregate diagnostic summary per measurement session and states that it excludes raw video, measured vital values, and stable user/device identifiers. This app does not explicitly disable telemetry. See Presage's [telemetry and privacy documentation](https://github.com/Presage-Security/SmartSpectra/blob/main/docs/telemetry-and-privacy.md) and this project's [consent and data handling](docs/consent-and-data.md). This project has not independently inspected SDK network traffic.
+
+## In-App Consent Dialog & Data Handling
+
+Before starting camera measurement, the application presents the following exact consent dialog on screen:
+
+> **Uso de la cámara y señales:**
+> Si continúas, SmartSpectra usará la cámara frontal para procesar señales de pulso y respiración. Esta versión experimental exige una ventana temporal candidata de 20 segundos con pares nuevos de pulso/respiración, antes de codificar una trama LBH fija de 16 bytes en memoria. Solo acepta en el evaluador muestras con stable=true, confidence finita y positiva, timestamps crecientes, diferencia de par de hasta 100 ms y huecos entre pares no mayores que 3 segundos. Los 20 segundos, 100 ms y 3 segundos son parámetros provisionales de ensayo, no umbrales médicos, garantías clínicas ni requisitos de los SDK. Los campos y la trama no se guardan, escriben en logs ni se transmiten mediante esta app; el array de bytes se borra tras codificar. El procesamiento y la telemetría de Presage son independientes; consulta su documentación y política de privacidad. Esta app no desactiva la telemetría del SDK. Puedes cancelar antes de iniciar o detener la medición después. No es un dispositivo médico.
+
+- **App-controlled storage and network:** The app sets `imageOutputEnabled = false` and does not persist biometric fields to disk or transmit LBH frames over the network.
+- **Presage SDK telemetry:** Presage documents session telemetry as enabled by default (sending an aggregate diagnostic summary per session, excluding raw video and vital values). This app does not explicitly disable SDK telemetry; consult Presage's official privacy documentation.
 
 ## Demo
 
