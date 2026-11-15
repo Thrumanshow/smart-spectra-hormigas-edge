@@ -1,0 +1,8 @@
+{
+  "casta": "hormiga_exploradora",
+  "protocolo": "LBH-v2.0",
+  "objetivo": "mapeo_de_metricas_y_descubrimiento",
+  "entorno_operativo": "termux_edge",
+  "schema_version": "1.0",
+  "modo": "lectura_y_reporte_de_rutas"
+}

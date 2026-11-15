@@ -1,0 +1,11 @@
+{
+  "casta": "hormiga_enfermera",
+  "protocolo": "LBH-v2.0",
+  "funciones": [
+    "auditoria_de_compilacion",
+    "deteccion_de_derivas_en_git_status",
+    "control_de_toolchain_jdk21"
+  ],
+  "schema_version": "1.0",
+  "modo": "auditoria_sin_modificar_fuentes"
+}

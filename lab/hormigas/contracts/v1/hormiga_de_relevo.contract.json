@@ -1,0 +1,20 @@
+{
+  "casta": "hormiga_de_relevo",
+  "protocolo": "LBH-v2.0",
+  "funcion": "buffer_y_puente_asincrono",
+  "politica_descarte": "silencioso_ante_invalidez",
+  "destino_local": "diagnostico_local_no_sensible",
+  "schema_version": "1.0",
+  "salida_permitida": [
+    "estado",
+    "contadores"
+  ],
+  "datos_prohibidos": [
+    "biometria",
+    "payload_lbh",
+    "api_keys",
+    "tokens",
+    "secretos"
+  ],
+  "registro_payload": false
+}

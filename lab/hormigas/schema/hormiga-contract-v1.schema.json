@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:hormigasais:contract:schema:1.0",
+  "title": "HormigasAIS contract schema v1",
+  "description": "Contratos declarativos; no ejecutan agentes ni implementan XOXO-BUS.",
+  "type": "object",
+  "required": ["schema_version", "casta", "protocolo"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "casta": {"enum": ["hormiga_de_relevo", "hormiga_de_seguridad", "hormiga_enfermera", "hormiga_exploradora", "hormiga_maestra"]},
+    "protocolo": {"const": "LBH-v2.0"},
+    "funcion": {"type": "string"},
+    "politica_descarte": {"type": "string"},
+    "destino_local": {"const": "diagnostico_local_no_sensible"},
+    "salida_permitida": {"type": "array", "items": {"enum": ["estado", "contadores", "ruta", "codigo_regla", "resultado"]}},
+    "datos_prohibidos": {"type": "array", "items": {"type": "string"}},
+    "registro_payload": {"const": false},
+    "alcance": {"type": "string"},
+    "restricciones": {"type": "array", "items": {"type": "string"}},
+    "modo_ejecucion": {"const": "solo_lectura"},
+    "politica_publicacion": {"const": "fail_closed_si_hay_indicio_de_clave"},
+    "funciones": {"type": "array", "items": {"type": "string"}},
+    "modo": {"type": "string"},
+    "objetivo": {"type": "string"},
+    "entorno_operativo": {"type": "string"},
+    "emision_feromona": {"type": "string"},
+    "sincronizacion": {"type": "string"},
+    "runtime_implementado": {"type": "boolean"}
+  },
+  "allOf": [
+    {"if": {"properties": {"casta": {"const": "hormiga_de_relevo"}}, "required": ["casta"]}, "then": {"required": ["funcion", "politica_descarte", "destino_local", "salida_permitida", "datos_prohibidos", "registro_payload"]}},
+    {"if": {"properties": {"casta": {"const": "hormiga_de_seguridad"}}, "required": ["casta"]}, "then": {"required": ["alcance", "restricciones", "modo_ejecucion", "salida_permitida", "politica_publicacion"]}},
+    {"if": {"properties": {"casta": {"const": "hormiga_enfermera"}}, "required": ["casta"]}, "then": {"required": ["funciones", "modo"]}},
+    {"if": {"properties": {"casta": {"const": "hormiga_exploradora"}}, "required": ["casta"]}, "then": {"required": ["objetivo", "entorno_operativo", "modo"]}},
+    {"if": {"properties": {"casta": {"const": "hormiga_maestra"}}, "required": ["casta"]}, "then": {"required": ["modo", "emision_feromona", "sincronizacion", "runtime_implementado"]}}
+  ],
+  "additionalProperties": false
+}

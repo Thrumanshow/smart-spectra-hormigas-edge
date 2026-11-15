@@ -1,0 +1,20 @@
+{
+  "casta": "hormiga_de_seguridad",
+  "protocolo": "LBH-v2.0",
+  "alcance": "aislamiento_de_secretos",
+  "restricciones": [
+    "prohibido_tocar_config_externa",
+    "prohibido_exponer_api_keys_en_logs",
+    "verificacion_integridad_git_baseline",
+    "solo_lectura",
+    "bloquear_publicacion_ante_indicios_de_clave"
+  ],
+  "schema_version": "1.0",
+  "modo_ejecucion": "solo_lectura",
+  "salida_permitida": [
+    "ruta",
+    "codigo_regla",
+    "resultado"
+  ],
+  "politica_publicacion": "fail_closed_si_hay_indicio_de_clave"
+}

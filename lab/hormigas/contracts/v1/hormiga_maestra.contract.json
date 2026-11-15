@@ -1,0 +1,9 @@
+{
+  "casta": "hormiga_maestra",
+  "protocolo": "LBH-v2.0",
+  "modo": "master_coordination_declarativa",
+  "emision_feromona": "XOXO-BUS",
+  "sincronizacion": "nodo_escuela_y_laboratorio_aislado",
+  "schema_version": "1.0",
+  "runtime_implementado": false
+}
