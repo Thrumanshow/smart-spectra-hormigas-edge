@@ -1,33 +1,17 @@
-# Laboratorio SmartSpectra Edge Sentinel
+# SmartSpectra Edge Sentinel Laboratory
 
-Este laboratorio separa los ensayos del prototipo de la futura aplicación
-presentada al reto. No es un sandbox del sistema operativo ni concede acceso
-a la cámara.
+This laboratory isolates serialization tests and prototype experiments submitted for the challenge. It is not an operating system sandbox and does not grant camera access.
 
-## Componentes
+## Components
+- `simulator/`: synthetic value generator, experimental 16-byte LBH format tests, and public contracts (`lbh-sdk`).
+- `android-integration/`: dedicated space for integration contracts and validation between the Android app, SmartSpectra, and the LBH bridge.
+- `../android/`: main Android project directory (including the 20-second session consensus evaluator, `PresageLbhBridge`, and `LbhEncoder`).
 
-- `simulator/`: generador de valores ficticios y pruebas del formato LBH
-  experimental.
-- `android-integration/`: espacio reservado para pruebas de integración
-  con la app Android y SmartSpectra.
-- `../android/`: espacio reservado para el proyecto Android.
+## Rules for Experiments
+- Identify each run as simulated or as a real Presage signal from the app.
+- Do not present random values as measurements obtained from a person.
+- Do not save or transmit video or biometric signals; bridge data operates strictly in volatile memory and is discarded after encoding.
+- Do not include API keys, passwords, tokens, or private keys in the repository.
+- Do not perform diagnosis, treatment, or medical decisions.
 
-## Reglas para los ensayos
-
-1. Identificar cada ejecución como simulada o como señal Presage real.
-2. No presentar valores aleatorios como mediciones obtenidas de una persona.
-3. No guardar ni transmitir video o señales biométricas salvo que sea necesario,
-   esté explicado y exista consentimiento explícito.
-4. No incluir API keys, contraseñas, tokens ni claves privadas en el repositorio.
-5. No realizar diagnóstico, tratamiento ni decisiones médicas.
-
-El formato binario actual —16 bytes, encabezado `0xAE`, dos float32
-big-endian y siete bytes reservados— es experimental. No se considera una
-especificación oficial de LBH hasta verificar la documentación y el SDK público
-correspondientes.
-
-## Estado de integración
-
-SmartSpectra aún no está integrado en este laboratorio. Antes de declarar una
-prueba como integración real, debe ejecutarse una app compatible con el SDK,
-obtener consentimiento para cámara y mostrar al menos una señal Presage en vivo.
+The current local 16-byte binary format — header `0xAE`, two big-endian `float32` values, and seven reserved bytes — operates alongside the 20-second temporal consensus evaluator implemented in the app's codebase.

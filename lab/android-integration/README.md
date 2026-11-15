@@ -1,11 +1,7 @@
-# Ensayos de integración Android
+# Android Integration Tests
 
-Esta carpeta queda reservada para pruebas del flujo entre la app Android,
-SmartSpectra y el adaptador LBH.
+This folder groups workflow contracts and validations between the Android app, the SmartSpectra SDK, and the in-memory LBH encoder.
 
-No contiene aún una integración ejecutable. Las pruebas futuras deberán indicar
-si usan datos simulados o señales Presage en vivo, validar los valores antes de
-codificarlos y evitar guardar video o datos biométricos por defecto.
+The actual implementation code (integrated in `android/app/`) uses `SmartSpectraConsensusEvaluator` to enforce a 20-second stability window over pulse/respiratory pairs, channeling them through `PresageLbhBridge` and `LbhEncoder` to build a 16-byte LBH frame strictly in volatile memory.
 
-No guardar aquí API keys, configuraciones OAuth privadas, tokens, videos de
-participantes ni datos identificables.
+The tests ensure threshold and range validation, avoiding saving video or biometric data to disk or transmitting it over the network. Do not store API keys, private OAuth configurations, tokens, participant videos, or identifiable data here.
