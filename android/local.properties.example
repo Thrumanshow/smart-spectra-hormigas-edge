@@ -1,0 +1,4 @@
+## Local Android SDK and Presage development configuration template
+# Copy this file to android/local.properties (ignored by Git)
+# sdk.dir=/data/data/com.termux/files/home/android-sdk
+# PRESAGE_API_KEY=your_development_key_here

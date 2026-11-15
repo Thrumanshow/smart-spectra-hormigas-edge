@@ -60,3 +60,8 @@ android/bridge-lab-experiment/
 
 # Salidas de compilacion, llaves y respaldos (anadido 2026-11-14)
 .idea/
+# HormigasAIS lab runtime and check manifests
+lab/hormigas/.install-manifest.sha256
+lab/hormigas/.managed-by-hormigas-checks
+lab/hormigas/runtime/.managed-by-runtime-demo
+lab/hormigas/runtime/.runtime-manifest.sha256
