@@ -57,3 +57,6 @@ lab/references/
 
 # Experimento inerte del perímetro público (script 44, 2026-11-14)
 android/bridge-lab-experiment/
+
+# Salidas de compilacion, llaves y respaldos (anadido 2026-11-14)
+.idea/

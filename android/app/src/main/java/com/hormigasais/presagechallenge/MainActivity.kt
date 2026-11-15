@@ -25,6 +25,23 @@ import kotlin.math.roundToInt
 class MainActivity : ComponentActivity() {
     private val sdk by lazy { SmartSpectraSdk.shared }
 
+    // Private experimental state: only latest scalar samples/timestamps and a count are retained in RAM.
+    private val maxLbhPairSkewMs = 100L // provisional lab tolerance; not a SmartSpectra contract
+    private var latestPulseFields: SmartSpectraFieldMapper.MeasurementWithConfidenceFields? = null
+    private var latestBreathingFields: SmartSpectraFieldMapper.MeasurementWithConfidenceFields? = null
+    private var lastEncodedPulseTimestampMicros: Long? = null
+    private var lastEncodedBreathingTimestampMicros: Long? = null
+    private var lastConsensusPulseTimestampMicros: Long? = null
+    private var lastConsensusBreathingTimestampMicros: Long? = null
+    private val sessionConsensusEvaluator = SmartSpectraConsensusEvaluator(
+        SmartSpectraConsensusEvaluator.Policy(
+            windowDurationMs = 20_000L, // candidate window for this private experiment
+            maxPairSkewMs = maxLbhPairSkewMs, // existing provisional 100 ms pair tolerance
+            maxInterSampleGapMs = 3_000L, // provisional engineering guard; not clinical evidence
+        )
+    )
+    private var locallyEncodedFrameCount: Long = 0
+
     private lateinit var statusView: TextView
     private lateinit var pulseView: TextView
     private lateinit var startButton: Button
@@ -106,22 +123,107 @@ class MainActivity : ComponentActivity() {
 
     private fun observeSdk() {
         sdk.metrics.observe(this) { metrics ->
-            val pulse = metrics
+            // Conservar las últimas muestras en memoria para manejar listas vacías entre emisiones.
+            val pulseMeasurement = metrics
                 ?.cardio
                 ?.pulseRateList
-                ?.lastOrNull { it.timestamp > 0 }
-                ?.value
+                ?.filter { it.timestamp > 0L }
+                ?.maxByOrNull { it.timestamp }
+            val breathingMeasurement = metrics
+                ?.breathing
+                ?.rateList
+                ?.filter { it.timestamp > 0L }
+                ?.maxByOrNull { it.timestamp }
 
-            if (pulse != null) {
-                pulseView.text = "Pulso: ${pulse.roundToInt()} bpm"
-                statusView.text = "SmartSpectra está procesando la señal."
+            if (pulseMeasurement != null) {
+                latestPulseFields = SmartSpectraFieldMapper.MeasurementWithConfidenceFields(
+                    value = pulseMeasurement.value,
+                    confidence = pulseMeasurement.confidence,
+                    timestampMicros = pulseMeasurement.timestamp,
+                    stable = pulseMeasurement.stable,
+                )
+                pulseView.text = "Pulse: ${pulseMeasurement.value} bpm"
+                statusView.text = "SmartSpectra pulse available"
+            }
+            if (breathingMeasurement != null) {
+                latestBreathingFields = SmartSpectraFieldMapper.MeasurementWithConfidenceFields(
+                    value = breathingMeasurement.value,
+                    confidence = breathingMeasurement.confidence,
+                    timestampMicros = breathingMeasurement.timestamp,
+                    stable = breathingMeasurement.stable,
+                )
+            }
+
+            val pulseFields = latestPulseFields
+            val breathingFields = latestBreathingFields
+            if (pulseFields != null && breathingFields != null) {
+                val pulseTime = pulseFields.timestampMicros
+                val breathingTime = breathingFields.timestampMicros
+                val timestampRegressed =
+                    (lastConsensusPulseTimestampMicros != null && pulseTime < lastConsensusPulseTimestampMicros!!) ||
+                    (lastConsensusBreathingTimestampMicros != null && breathingTime < lastConsensusBreathingTimestampMicros!!)
+                if (timestampRegressed) {
+                    sessionConsensusEvaluator.clear()
+                    lastConsensusPulseTimestampMicros = null
+                    lastConsensusBreathingTimestampMicros = null
+                }
+                val isNewPairedSample =
+                    (lastConsensusPulseTimestampMicros == null || pulseTime > lastConsensusPulseTimestampMicros!!) &&
+                    (lastConsensusBreathingTimestampMicros == null || breathingTime > lastConsensusBreathingTimestampMicros!!)
+                if (isNewPairedSample) {
+                    lastConsensusPulseTimestampMicros = pulseTime
+                    lastConsensusBreathingTimestampMicros = breathingTime
+                    val decision = sessionConsensusEvaluator.ingest(pulseFields, breathingFields)
+                    when (decision.state) {
+                        SmartSpectraConsensusEvaluator.State.COLLECTING -> {
+                            statusView.text = "Experimental stability window: collecting"
+                        }
+                        SmartSpectraConsensusEvaluator.State.RESET -> {
+                            statusView.text = "Experimental stability reset; collecting a new window"
+                        }
+                        SmartSpectraConsensusEvaluator.State.SESSION_STABLE_EXPERIMENTAL -> {
+                            val readyPulse = decision.acceptedPulse
+                            val readyBreathing = decision.acceptedBreathing
+                            if (readyPulse != null && readyBreathing != null) {
+                                when (val encoded = SmartSpectraFieldMapper.encodeSdkPair(
+                                    pulse = readyPulse,
+                                    breathing = readyBreathing,
+                                    maxSkewMs = maxLbhPairSkewMs,
+                                )) {
+                                    is PresageLbhBridge.Result.Accepted -> {
+                                        try {
+                                            if (encoded.frame.size == 16) {
+                                                locallyEncodedFrameCount += 1
+                                                lastEncodedPulseTimestampMicros = readyPulse.timestampMicros
+                                                lastEncodedBreathingTimestampMicros = readyBreathing.timestampMicros
+                                                statusView.text = "Experimental 20-second stability window passed; frame encoded (#$locallyEncodedFrameCount)"
+                                            }
+                                        } finally {
+                                            // No conservar, loguear ni transmitir el payload.
+                                            encoded.frame.fill(0)
+                                        }
+                                    }
+                                    is PresageLbhBridge.Result.Rejected -> {
+                                        sessionConsensusEvaluator.clear()
+                                        lastConsensusPulseTimestampMicros = null
+                                        lastConsensusBreathingTimestampMicros = null
+                                        statusView.text = "Experimental pair rejected; stability window cleared"
+                                    }
+                                }
+                            } else {
+                                sessionConsensusEvaluator.clear()
+                                statusView.text = "Experimental stability result incomplete; window cleared"
+                            }
+                        }
+                    }
+                }
             }
         }
 
         sdk.error.observe(this) { error ->
             if (error != null) {
                 statusView.text =
-                    "Error SmartSpectra: ${error.message ?: "sin detalle"}"
+                    "Error SmartSpectra: ${error.message}"
             }
         }
 
@@ -161,16 +263,13 @@ class MainActivity : ComponentActivity() {
         AlertDialog.Builder(this)
             .setTitle("Uso de la cámara y señales")
             .setMessage(
-                "Si continúas, SmartSpectra usará la cámara frontal para procesar " +
-                    "señales fisiológicas, como el pulso. Esta app de laboratorio " +
-                    "no guarda deliberadamente video ni envía tramas LBH. El SDK " +
-                    "puede tener su propio tratamiento de datos o telemetría; consulta " +
-                    "la documentación y política de Presage. Presage informa que la " +
-                    "telemetría está activada por defecto y envía un resumen agregado " +
-                    "de diagnóstico por sesión. Según Presage, no incluye video sin " +
-                    "procesar, valores medidos ni identificadores estables. Esta app " +
-                    "no desactiva la telemetría. Puedes cancelar antes de iniciar o " +
-                    "detener la medición después. No es una herramienta médica."
+                "Si continúas, SmartSpectra usará la cámara frontal para procesar señales de pulso y respiración. " +
+                    "Esta versión experimental exige una ventana temporal candidata de 20 segundos con pares nuevos de pulso/respiración, antes de codificar una trama LBH fija de 16 bytes en memoria. " +
+                    "Solo acepta en el evaluador muestras con stable=true, confidence finita y positiva, timestamps crecientes, diferencia de par de hasta 100 ms y huecos entre pares no mayores que 3 segundos. " +
+                    "Los 20 segundos, 100 ms y 3 segundos son parámetros provisionales de ensayo, no umbrales médicos, garantías clínicas ni requisitos de los SDK. " +
+                    "Los campos y la trama no se guardan, escriben en logs ni se transmiten mediante esta app; el array de bytes se borra tras codificar. " +
+                    "El procesamiento y la telemetría de Presage son independientes; consulta su documentación y política de privacidad. " +
+                    "Esta app no desactiva la telemetría del SDK. Puedes cancelar antes de iniciar o detener la medición después. No es un dispositivo médico."
             )
             .setPositiveButton("Aceptar y continuar") { _, _ ->
                 if (ContextCompat.checkSelfPermission(
@@ -189,7 +288,19 @@ class MainActivity : ComponentActivity() {
             .show()
     }
 
+    private fun resetLocalLbhState() {
+        latestPulseFields = null
+        latestBreathingFields = null
+        lastEncodedPulseTimestampMicros = null
+        lastEncodedBreathingTimestampMicros = null
+        lastConsensusPulseTimestampMicros = null
+        lastConsensusBreathingTimestampMicros = null
+        sessionConsensusEvaluator.clear()
+        locallyEncodedFrameCount = 0
+    }
+
     private fun startMeasurement() {
+        resetLocalLbhState()
         if (BuildConfig.PRESAGE_API_KEY.isBlank()) {
             statusView.text =
                 "Falta la clave local de desarrollo; no se inició la cámara."
@@ -206,6 +317,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun stopMeasurement() {
+        resetLocalLbhState()
         lifecycleScope.launch {
             runCatching { sdk.stop() }
                 .onFailure { error ->
@@ -217,6 +329,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onPause() {
         super.onPause()
+        resetLocalLbhState()
         lifecycleScope.launch {
             when (sdk.processingStatus.value) {
                 ProcessingStatus.RUNNING,

@@ -58,3 +58,6 @@ dependencies {
     implementation("androidx.camera:camera-view:1.6.0")
     implementation("com.presagetech:smartspectra:3.4.0")
 }
+
+// Unit tests
+dependencies { testImplementation("junit:junit:4.13.2") }
