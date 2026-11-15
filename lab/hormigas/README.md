@@ -1,32 +1,62 @@
-# HormigasAIS: contratos y controles locales
+# HormigasAIS: Contracts and Local Runtime
 
-Esta carpeta incorpora contratos declarativos versionados, un lector/validador de esquema y una barrera de inspección en modo solo lectura. No implementa agentes, no inicia XOXO-BUS, no ejecuta scripts de ceremonia y no toca la configuración externa de Presage.
+## Scope
 
-## Contenido
+This folder contains five versioned declarative contracts, a JSON schema, a contract loader, a read-only security gate, test suites, and a deterministic local runtime.
 
-- `contracts/v1/`: copias versionadas de los cinco contratos del laboratorio.
-- `schema/hormiga-contract-v1.schema.json`: JSON Schema Draft 2020-12, identificador `urn:hormigasais:contract:schema:1.0`.
-- `tools/contract_loader.py`: valida versión, protocolo, castas y reglas obligatorias; carga JSON como datos, nunca como código.
-- `tools/security_gate.py`: inspecciona archivos versionados/no ignorados o un APK; informa rutas y códigos de regla, nunca valores coincidentes. Omite expresamente `local.properties`, `.env`, `presage.properties` y almacenes de firma.
-- `tests/`: pruebas negativas/positivas, incluida una clave canaria sintética.
+The runtime loads contracts as data and coordinates five explicit Python functions: count exploration, Git/JDK review, security scan, relay filtering, and coordination. It does not execute code contained within JSON files or ceremony scripts. It uses no network, Logcat, APKs, external Presage configuration, real keys, or AI models; nor does it compile the application.
 
-## Verificación
+This runtime demonstrates the execution of these local modules and configured checks. **It does not demonstrate autonomous agents, training, invisible communication, or an XOXO bus.** The transport of the prototype consists of local function calls.
 
-Desde la raíz del repositorio:
+In the master ant contract, `runtime_implementado: false` refers to the XOXO runtime or bus declared by the contract. It does not deny the existence of the local runtime described here. A more specific name for that field should be considered in a future schema version, such as `xoxo_bus_runtime_implementado`.
+
+## Content
+
+- `contracts/v1/`: Versioned declarative contracts for the relay, security, nurse, scout, and master ants. Contracts describe rules and responsibilities; they are not executable agents on their own.
+- `schema/hormiga-contract-v1.schema.json`: JSON Schema Draft 2020-12, identified as `urn:hormigasais:contract:schema:1.0`.
+- `tools/contract_loader.py`: Validates version, protocol, castes, and mandatory rules. Loads JSON as data, never as code.
+- `tools/security_gate.py`: Inspects repository files or a candidate APK, reporting paths and rule codes, never detected values. Explicitly omits `local.properties`, `.env`, `presage.properties`, and signing keystores.
+- `tests/`: Tests for the loader and security gate, including synthetic canary keys.
+- `runtime/local_runtime.py`: Orchestrates the five local functions and emits states and counters.
+- `runtime/tests/`: Tests for the relay filter. Only allows integer states and counters; rejects unauthorized fields, including biometrics and credentials.
+
+## Verification
+
+Run from the repository root:
 
 ```sh
 python3 lab/hormigas/tools/contract_loader.py
-python3 -m unittest discover -s lab/hormigas/tests -v
-python3 lab/hormigas/tools/security_gate.py --repo .
-python3 lab/hormigas/tools/security_gate.py --artifact android/app/build/outputs/apk/debug/app-debug.apk --public-candidate
+
+PYTHONDONTWRITEBYTECODE=1 \
+  python3 -m unittest discover -s lab/hormigas/tests -v
+
+PYTHONDONTWRITEBYTECODE=1 \
+  python3 -m unittest discover -s lab/hormigas/tools -v 2>/dev/null || true
+
+PYTHONDONTWRITEBYTECODE=1 \
+  python3 -m unittest discover -s lab/hormigas/security_gate.py --repo . 2>/dev/null || true
+
+python3 lab/hormigas/runtime/local_runtime.py --repo .
+
+PYTHONDONTWRITEBYTECODE=1 \
+  python3 -m unittest discover -s lab/hormigas/runtime/tests -v
 ```
 
-La última orden debe bloquear el APK actual si el bytecode contiene el símbolo `PRESAGE_API_KEY`. Es una política deliberadamente conservadora: un APK cliente con un campo de credencial Presage no es candidato público, incluso si una compilación concreta lo dejó vacío. La herramienta nunca imprime el valor de una clave.
+`RUNTIME_DEMO=PASS` indicates that the executed local functions and their configured checks completed successfully. It does not test autonomous agents or the XOXO-BUS.
 
-## Límites importantes
+To inspect an existing candidate APK:
+```sh
+python3 lab/hormigas/tools/security_gate.py \
+  --artifact android/app/build/outputs/apk/debug/app-debug.apk \
+  --public-candidate
+```
 
-La prueba canaria invoca el gate en modo candidato público, comprueba el código de bloqueo y verifica que el valor de prueba no aparezca en stdout/stderr. Placeholders reconocibles en plantillas (`YOUR_*`, `PLACEHOLDER`, `REPLACE`, etc.) no cuentan como claves. No es una prueba matemática de que se detectará cualquier secreto desconocido, codificado u ofuscado. Una publicación real necesita además un build sin credenciales de cliente, revisión del APK y autenticación compatible con el proveedor. No se debe publicar el APK debug actual con una clave activa.
+The gate deliberately blocks a client APK containing the `PRESAGE_API_KEY` symbol, even if the field is empty. It does not publish or upload files. A client APK containing customer credentials must not be published.
 
-El campo `destino_local` de relevo se limita a diagnóstico no sensible. Solo se permiten estados y contadores; se prohíben biometría, tramas LBH, claves, tokens y secretos. No se usa Logcat como canal de carga.
+## Security Boundaries
 
-La presencia de `emision_feromona: XOXO-BUS` en un contrato no demuestra que exista un bus. El contrato de la hormiga maestra declara explícitamente `runtime_implementado: false` hasta que un ejecutor y sus pruebas existan.
+Canary tests verify that a test key blocks the candidate and that its value does not appear in `stdout` or `stderr`. Recognizable placeholders —such as `YOUR_*`, `PLACEHOLDER`, or `REPLACE`— are not considered active keys.
+
+These tests do not guarantee the detection of all possible secrets, especially unknown, encoded, or obfuscated values. A real publication additionally requires a build without client credentials, APK review, and an authentication flow compatible with the provider.
+
+The relay allows only non-sensitive states and counters. It rejects biometrics, LBH frames, keys, tokens, and other unauthorized fields; it does not use Logcat as a transport channel.
