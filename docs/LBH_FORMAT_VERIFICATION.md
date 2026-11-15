@@ -7,11 +7,11 @@
 
 ## 1. Summary
 
-This document describes the binary layout of the LBH frame and provides a canonical test vector that any reviewer can verify independently, without access to a device or to the private integration source code.
+This document describes the binary layout of the LBH frame and provides a canonical test vector that any reviewer can verify independently, without access to a device.
 
 Scope of the claims made here:
 
-- In the private integration build, the app evaluates samples with an experimental session-consensus layer (states `COLLECTING`, `RESET`, `SESSION_STABLE_EXPERIMENTAL`) and hands the results to `PresageLbhBridge`, which returns `Accepted` or `Rejected`. Frames are built in-process by the bridge and the encoder.
+- The app evaluates samples with an experimental session-consensus layer (states `COLLECTING`, `RESET`, `SESSION_STABLE_EXPERIMENTAL`) and hands the results to `PresageLbhBridge`, which returns `Accepted` or `Rejected`. Frames are built in-process by the bridge and the encoder.
 - A keyword search of the bridge source (2026-11-14) found no network, file-output or logging calls. This is a code search, not a formal audit.
 - This document makes no claim about the network behaviour of the SmartSpectra SDK. That is covered separately in the privacy and consent text of the project.
 
@@ -116,7 +116,7 @@ The encoder is a last line of defence: even if an upstream layer lets an invalid
 
 ## 6. How to verify on an installation
 
-A frame is generated only inside the app process. To confirm that the encoder produces the canonical vector, in an environment with access to the encoder source, run a unit test that calls:
+A frame is generated only inside the app process. To confirm that the encoder produces the canonical vector, run a unit test that calls the encoder. In this repository, the encoder is `android/app/src/main/java/com/hormigasais/presagechallenge/LbhEncoder.kt` and its unit tests are under `android/app/src/test/java/com/hormigasais/presagechallenge/`. The call is:
 
 ```kotlin
 LbhEncoder.encode(LbhEncoder.Metrics(
