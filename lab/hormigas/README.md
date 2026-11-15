@@ -18,11 +18,11 @@ In the master ant contract, `runtime_implementado: false` refers to the XOXO run
 - `tools/security_gate.py`: Inspects repository files or a candidate APK, reporting paths and rule codes, never detected values. Explicitly omits `local.properties`, `.env`, `presage.properties`, and signing keystores.
 - `tests/`: Tests for the loader and security gate, including synthetic canary keys.
 - `runtime/local_runtime.py`: Orchestrates the five local functions and emits states and counters.
-- `runtime/tests/`: Tests for the relay filter. Only allows integer states and counters; rejects unauthorized fields, including biometrics and credentials.
+- `runtime/tests/`: Tests for the relay filter. It allows only approved status values and integer counters, and rejects unauthorized fields, including biometrics and credentials.
 
 ## Verification
 
-Run from the repository root:
+Run these commands from the repository root:
 
 ```sh
 python3 lab/hormigas/tools/contract_loader.py
@@ -30,11 +30,7 @@ python3 lab/hormigas/tools/contract_loader.py
 PYTHONDONTWRITEBYTECODE=1 \
   python3 -m unittest discover -s lab/hormigas/tests -v
 
-PYTHONDONTWRITEBYTECODE=1 \
-  python3 -m unittest discover -s lab/hormigas/tools -v 2>/dev/null || true
-
-PYTHONDONTWRITEBYTECODE=1 \
-  python3 -m unittest discover -s lab/hormigas/security_gate.py --repo . 2>/dev/null || true
+python3 lab/hormigas/tools/security_gate.py --repo .
 
 python3 lab/hormigas/runtime/local_runtime.py --repo .
 
@@ -42,7 +38,7 @@ PYTHONDONTWRITEBYTECODE=1 \
   python3 -m unittest discover -s lab/hormigas/runtime/tests -v
 ```
 
-`RUNTIME_DEMO=PASS` indicates that the executed local functions and their configured checks completed successfully. It does not test autonomous agents or the XOXO-BUS.
+`RUNTIME_DEMO=PASS` means the local functions and configured checks completed successfully. It does not demonstrate autonomous agents, training, invisible communication, or an XOXO bus.
 
 To inspect an existing candidate APK:
 ```sh
