@@ -7,6 +7,8 @@
 <p align="center"><strong>Watch the unlisted live app demonstration</strong> · Opens on YouTube</p>
 
 <!-- DEMO_VIDEO_HERO_END -->
+> 🏆 **Participante oficial en el [Presage SmartSpectra SDK Challenge en DEV.to](https://dev.to/cristhiam-lbh-architect/smart-spectra-edge-sentinel-a-consent-first-android-pulse-demo) — [Ver publicación oficial y post del concurso].**
+
 
 
 A Presage SmartSpectra SDK Challenge prototype built and tested on a Samsung Galaxy A16 from Termux. The Android app uses the front camera, presents an in-app consent dialog, and displays the live pulse metric reported by SmartSpectra. This is an experimental prototype, not a medical device.
