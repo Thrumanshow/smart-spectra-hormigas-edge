@@ -7,7 +7,7 @@
 <p align="center"><strong>Watch the unlisted live app demonstration</strong> · Opens on YouTube</p>
 
 <!-- DEMO_VIDEO_HERO_END -->
-> 🏆 **Participante oficial en el [Presage SmartSpectra SDK Challenge en DEV.to](https://dev.to/thrumanshow/smartspectra-edge-sentinel-a-consent-first-android-pulse-demo-1a43) — [Ver publicación oficial y post del concurso].**
+> **Submitted to the [Presage SmartSpectra SDK Challenge on DEV](https://dev.to/thrumanshow/smartspectra-edge-sentinel-a-consent-first-android-pulse-demo-1a43).**
 
 
 
@@ -121,7 +121,7 @@ Before starting camera measurement, the application presents the following exact
 
 - **Live app demonstration:** [Watch the demonstration video](https://youtube.com/shorts/F4qimKu_ZCE?si=WVPEBpQh4bsWr1Ku).
 
-The recording shows the consent screen, front-camera measurement flow, and a changing pulse value reported by SmartSpectra. It demonstrates pulse only; it does not show breathing-rate extraction, confidence handling, clinical validation, or an Android-to-LBH packet bridge. This repository does not host or distribute an APK.
+The recording shows the in-app consent dialog (in Spanish), the front-camera measurement flow, and changing pulse values reported by SmartSpectra, until the measurement is stopped. By design the app has no extra screen for the LBH frame: the 16-byte frame is built in memory and cleared after encoding, the app does not display it, and the current source code does not deliberately store, log or transmit it, so the video does not show it. The recording also does not show breathing-rate values or any clinical validation. The consent text is reproduced in full in this README and in `docs/consent-and-data.md`. This repository does not host or distribute an APK.
 
 <!-- DEVTO_POST_LINK_START -->
 
