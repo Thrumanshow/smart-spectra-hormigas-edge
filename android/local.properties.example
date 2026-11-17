@@ -1,4 +1,7 @@
-## Local Android SDK and Presage development configuration template
-# Copy this file to android/local.properties (ignored by Git)
+## Local Android SDK configuration template
+# Copy this file to android/local.properties (ignored by Git), uncomment sdk.dir and set your SDK path.
 # sdk.dir=/data/data/com.termux/files/home/android-sdk
-# PRESAGE_API_KEY=your_development_key_here
+#
+# The Presage development key is NOT read from this file.
+# The build reads it from ~/.config/smart-spectra-challenge/presage.properties (outside the repository).
+# See the root README.

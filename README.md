@@ -19,7 +19,6 @@ A Presage SmartSpectra SDK Challenge prototype built and tested on a Samsung Gal
 - The repository tests the public `lbh-sdk` packet format in Python and an experimental 16-byte format, alongside Android unit tests (27 tests passing).
 
 See the [interoperability contract](docs/contract-smart-spectra-lbh.md) for the tested boundaries and [consent and data handling](docs/consent-and-data.md) for the app's data disclosures.
-(docs/contract-smart-spectra-lbh.md) for the tested boundaries and [consent and data handling](docs/consent-and-data.md) for the app's data disclosures.
 
 ## Development setup
 
@@ -34,16 +33,21 @@ export ANDROID_HOME="${ANDROID_HOME:-$HOME/android-sdk}"
 export ANDROID_SDK_ROOT="$ANDROID_HOME"
 cd android
 ./gradlew --no-daemon :app:assembleDebug :app:lintDebug
+```
 
-Reproducing and running unit tests without an API key
-Reviewers can verify the consensus logic, bridge validation, and 16-byte binary encoding without a Presage API key:
+### Reproducing and running unit tests without an API key
 
-Copy the local configuration template:
+The Android unit tests cover the consensus logic, the field mappers, the bridge validation and the 16-byte encoding. They need neither a Presage API key nor a camera.
 
+1. Copy the local configuration template, then uncomment `sdk.dir` and set it to your Android SDK path (the template shows the Termux path used in this project):
+
+```bash
 cp android/local.properties.example android/local.properties
+```
 
-Run the Android unit test suite (27 tests covering consensus, bridge, and LBH encoder):
+2. Run the Android unit test suite (27 tests):
 
+```bash
 cd android
 ./gradlew --no-daemon :app:testDebugUnitTest
 ```
@@ -54,13 +58,17 @@ Python 3 is required for laboratory tests. Public SDK packet tests use `lbh-sdk`
 
 ### Configure the Presage development key locally
 
-Do not put an API key in source code, this README, shell command arguments, Git, or a shared chat. Run the local helper and enter the key only in Termux when prompted; do not continue if the helper visibly echoes the key or asks you to place it in a command:
+Do not put an API key in source code, this README, shell command arguments, Git, or a shared chat. A key is only needed to run the app with live SmartSpectra measurements; building the APK and running the unit tests work without it (the key field is then empty). The build reads the key only from `~/.config/smart-spectra-challenge/presage.properties`, outside the repository. A `PRESAGE_API_KEY` entry in `android/local.properties` is not read by the build. Create that file by typing the key at a hidden prompt, so it never appears in a command line or in shell history:
 
 ```bash
-bash android/configure-presage-dev.sh
+umask 077
+mkdir -p ~/.config/smart-spectra-challenge
+read -rs -p 'Presage development key: ' PRESAGE_KEY; echo
+printf 'PRESAGE_API_KEY=%s\n' "$PRESAGE_KEY" > ~/.config/smart-spectra-challenge/presage.properties
+unset PRESAGE_KEY
 ```
 
-The helper is intended to store the development credential outside the repository under `~/.config/smart-spectra-challenge/`. Verify that local configuration remains outside Git. The build injects the key into Android `BuildConfig`, so it can be extracted from a built APK. Do not commit or publicly distribute an APK containing an active development key. Revoke or rotate an exposed key.
+The script `android/configure-presage-dev.sh` is a one-time setup helper from this project's history; on the current repository it stops without changes because the Gradle file already declares the key field. Verify that the key file remains outside Git. The build injects the key into Android `BuildConfig`, so it can be extracted from a built APK. Do not commit or publicly distribute an APK containing an active development key. Revoke or rotate an exposed key.
 
 The challenge requests a public source repository, setup instructions, and a demo video; it does not list an APK upload as a submission requirement. See the [official challenge requirements](https://dev.to/challenges/presage-2026-11-04).
 
