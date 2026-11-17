@@ -2,7 +2,7 @@
 # SmartSpectra Edge Sentinel
 <!-- DEMO_VIDEO_HERO_START -->
 
-[![Watch the SmartSpectra Edge Sentinel live pulse demo](https://img.youtube.com/vi/s257P0V4-iQ/hqdefault.jpg)](https://youtube.com/shorts/s257P0V4-iQ)
+[![Watch the SmartSpectra Edge Sentinel live pulse demo](https://img.youtube.com/vi/F4qimKu_ZCE/hqdefault.jpg)](https://youtube.com/shorts/F4qimKu_ZCE)
 
 <p align="center"><strong>Watch the unlisted live app demonstration</strong> · Opens on YouTube</p>
 
@@ -117,7 +117,7 @@ Before starting camera measurement, the application presents the following exact
 
 ## Demo
 
-- **Live app demonstration:** [Watch the demonstration video](https://youtube.com/shorts/s257P0V4-iQ?si=WVPEBpQh4bsWr1Ku).
+- **Live app demonstration:** [Watch the demonstration video](https://youtube.com/shorts/F4qimKu_ZCE?si=WVPEBpQh4bsWr1Ku).
 
 The recording shows the consent screen, front-camera measurement flow, and a changing pulse value reported by SmartSpectra. It demonstrates pulse only; it does not show breathing-rate extraction, confidence handling, clinical validation, or an Android-to-LBH packet bridge. This repository does not host or distribute an APK.
 
