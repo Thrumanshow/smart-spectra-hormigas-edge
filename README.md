@@ -7,7 +7,7 @@
 <p align="center"><strong>Watch the unlisted live app demonstration</strong> · Opens on YouTube</p>
 
 <!-- DEMO_VIDEO_HERO_END -->
-> 🏆 **Participante oficial en el [Presage SmartSpectra SDK Challenge en DEV.to](https://dev.to/cristhiam-lbh-architect/smart-spectra-edge-sentinel-a-consent-first-android-pulse-demo) — [Ver publicación oficial y post del concurso].**
+> 🏆 **Participante oficial en el [Presage SmartSpectra SDK Challenge en DEV.to](https://dev.to/thrumanshow/smartspectra-edge-sentinel-a-consent-first-android-pulse-demo-1a43) — [Ver publicación oficial y post del concurso].**
 
 
 
