@@ -2,7 +2,7 @@
 # SmartSpectra Edge Sentinel
 <!-- DEMO_VIDEO_HERO_START -->
 
-[![Watch the SmartSpectra Edge Sentinel live pulse demo](https://youtube.com/shorts/F4qimKu_ZCE)
+[live pulse demo](https://youtube.com/shorts/F4qimKu_ZCE)
 
 <p align="center"><strong>Watch the unlisted live app demonstration</strong> · Opens on YouTube</p>
 
